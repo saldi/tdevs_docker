@@ -1,0 +1,21 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-ingress-service
+  namespace: ingress-traefik
+spec:
+  clusterIP:
+    10.96.86.86
+  selector:
+    app: traefik-ingress-lb
+  ports:
+    - protocol: TCP
+      nodePort: 32000
+      port: 80
+      name: web
+    - protocol: TCP
+      nodePort: 31000
+      port: 8080
+      name: admin
+  type: NodePort
