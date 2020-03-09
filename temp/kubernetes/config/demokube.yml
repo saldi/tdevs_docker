@@ -1,0 +1,20 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: demokube
+spec:
+  selector:
+    matchLabels:
+      app: demokube
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: demokube
+    spec:
+      containers:
+      - name: demokube
+        image: saldi/demokube:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8888
