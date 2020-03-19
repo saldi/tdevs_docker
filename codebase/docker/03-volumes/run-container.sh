@@ -1,0 +1,1 @@
+docker run --name users-data -p 8080:8080 -v d:/Szkolenia/Jug/dockub/codebase/docker/03-volumes/conf:/conf tdevs/users-data:1.0.0

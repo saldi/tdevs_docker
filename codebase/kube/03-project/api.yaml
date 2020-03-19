@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: users-api
+  template:
+    metadata:
+      labels:
+        app: users-api
+    spec:
+      containers:
+        - name: tdevs-users-api
+          image: tdevs/users-api:1.0.0
+          imagePullPolicy: Never
+          env:
+            - name: users.data.api.url
+              valueFrom:
+                configMapKeyRef:
+                  name: users-api-config
+                  key: users.data.api.url
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: users-api-config
+  namespace: default
+data:
+  users.data.api.url: "http://users-data-service.default.svc.cluster.local:8080"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: users-api-service
+  namespace: default
+spec:
+  selector:
+    app: users-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort

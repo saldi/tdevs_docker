@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shell-demo
+spec:
+  containers:
+    - name: tdevs-tools
+      image: tdevs/tools
+      imagePullPolicy: Never
+      volumeMounts:
+        - name: storage
+          mountPath: /data
+  volumes:
+    - name: storage
+      hostPath:
+        path: /d/Szkolenia/Jug/
+        # this field is optional
+        type: Directory
+  hostNetwork: true
+  dnsPolicy: Default

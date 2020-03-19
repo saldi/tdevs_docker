@@ -1,0 +1,31 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: grafana.traefik
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: grafana-service
+              servicePort: 80
+    - host: whoami.traefik
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: whoami-service
+              servicePort: 8000
+    - host: users.traefik
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: users-api-service
+              servicePort: 8080

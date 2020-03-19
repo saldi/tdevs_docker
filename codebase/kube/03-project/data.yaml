@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: h2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: h2
+  template:
+    metadata:
+      labels:
+        app: h2
+    spec:
+      containers:
+        - name: tdevs-h2
+          image: tdevs/h2:1.0.0
+          imagePullPolicy: Never
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: h2-service
+  namespace: default
+spec:
+  selector:
+    app: h2
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9092
+      targetPort: 9092
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-data
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: users-data
+  template:
+    metadata:
+      labels:
+        app: users-data
+    spec:
+      containers:
+        - name: tdevs-users-data
+          image: tdevs/users-data:1.0.0
+          imagePullPolicy: Never
+          env:
+            - name: spring.datasource.url
+              valueFrom:
+                configMapKeyRef:
+                  name: users-data-config
+                  key: spring.datasource.url
+            - name: spring.datasource.username
+              valueFrom:
+                configMapKeyRef:
+                  name: users-data-config
+                  key: spring.datasource.username
+            - name: spring.datasource.password
+              valueFrom:
+                configMapKeyRef:
+                  name: users-data-config
+                  key: spring.datasource.password
+            - name: spring.jpa.hibernate.ddl-auto
+              valueFrom:
+                configMapKeyRef:
+                  name: users-data-config
+                  key: spring.jpa.hibernate.ddl-auto
+            - name: spring.jpa.properties.hibernate.dialect
+              valueFrom:
+                configMapKeyRef:
+                  name: users-data-config
+                  key: spring.jpa.properties.hibernate.dialect
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: users-data-config
+  namespace: default
+data:
+  spring.datasource.url: "jdbc:h2:tcp://h2-service.default.svc.cluster.local:9092//h2-data/database"
+  spring.datasource.username: "sa"
+  spring.datasource.password: "sa"
+  spring.jpa.hibernate.ddl-auto: "none"
+  spring.jpa.properties.hibernate.dialect: "org.hibernate.dialect.H2Dialect"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: users-data-service
+  namespace: default
+spec:
+  selector:
+    app: users-data
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
